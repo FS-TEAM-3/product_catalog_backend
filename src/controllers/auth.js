@@ -9,6 +9,7 @@ const {
 const { verifyValidate } = require("../models/user");
 
 const appLink = "https://product-catalog-gamma-navy.vercel.app/";
+// const appLink = "http://localhost:5173";
 
 const signup = async (req, res, next) => {
   const { error } = userSignUpValidate.validate(req.body);
@@ -54,7 +55,6 @@ const signup = async (req, res, next) => {
 };
 
 const login = async (req, res, next) => {
-  console.log(process.env.SECRET_KEY);
   const { error } = userLogInValidate.validate(req.body);
 
   try {
