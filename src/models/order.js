@@ -13,7 +13,10 @@ const orderSchema = new mongoose.Schema({
     email: String,
     name: String,
     phone: String,
+    adress: String,
   },
+  price: Number,
+  date: String
 });
 
 const Order = mongoose.model("order", orderSchema);

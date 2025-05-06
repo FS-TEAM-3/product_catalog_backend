@@ -8,62 +8,37 @@ const router = express.Router();
  * @swagger
  * tags:
  *   name: Auth
- *   description: User authentication
+ *   description: Firebase-based user authentication
  */
 
 /**
  * @swagger
  * /auth/signup:
  *   post:
- *     summary: Register a new user
+ *     summary: Sign up or login a user via Firebase token
  *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/UserSignup'
- *     responses:
- *       201:
- *         description: User created
- *       409:
- *         description: Email in use
- */
-router.post("/signup", ctrl.auth.signup);
-
-/**
- * @swagger
- * /auth/verify/{verificationToken}:
- *   get:
- *     summary: Verify user email
- *     tags: [Auth]
- *     parameters:
- *       - in: path
- *         name: verificationToken
- *         schema:
- *           type: string
- *         required: true
- *         description: The user's email verification token
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Verification successful
+ *         description: Successfully signed up or logged in
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
  *       400:
- *         description: Verification failed
+ *         description: Invalid Firebase user data
  */
-router.get("/verify/:verificationToken", ctrl.auth.verify);
+router.post("/signup", auth, ctrl.auth.signup);
 
 /**
  * @swagger
  * /auth/login:
  *   post:
- *     summary: Login a user
+ *     summary: Login user with Firebase token
  *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/UserLogin'
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Login successful
@@ -71,24 +46,28 @@ router.get("/verify/:verificationToken", ctrl.auth.verify);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/AuthResponse'
- *       401:
- *         description: Email or password is wrong
+ *       400:
+ *         description: Login error
  */
-router.post("/login", ctrl.auth.login);
+router.post("/login", auth, ctrl.auth.login);
 
 /**
  * @swagger
  * /auth/current:
  *   get:
- *     summary: Get current logged in user
+ *     summary: Get current authenticated user
  *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Current user info
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
  *       401:
- *         description: Not authorized
+ *         description: Unauthorized
  */
 router.get("/current", auth, ctrl.auth.current);
 
@@ -104,7 +83,7 @@ router.get("/current", auth, ctrl.auth.current);
  *       200:
  *         description: Successfully logged out
  *       400:
- *         description: User not found
+ *         description: Logout error
  */
 router.get("/logout", auth, ctrl.auth.logout);
 
@@ -112,7 +91,7 @@ router.get("/logout", auth, ctrl.auth.logout);
  * @swagger
  * /auth/delete:
  *   delete:
- *     summary: Delete current user
+ *     summary: Delete current authenticated user
  *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
@@ -120,16 +99,24 @@ router.get("/logout", auth, ctrl.auth.logout);
  *       200:
  *         description: User deleted
  *       400:
- *         description: Deletion failed
+ *         description: Delete error
  */
 router.delete("/delete", auth, ctrl.auth.deleteUser);
 
-module.exports = router;
+/**
+ * @swagger
+ * /auth/google:
+ *   post:
+ *     summary: Login or sign up with Google via Firebase token
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Login successful via Google
+ *       400:
+ *         description: Google auth error
+ */
+router.post("/google", auth, ctrl.auth.authWithGoogle);
 
-router.post("/signup", ctrl.auth.signup);
-router.get("/verify/:verificationToken", ctrl.auth.verify);
-router.post("/login", ctrl.auth.login);
-router.get("/current", auth, ctrl.auth.current);
-router.get("/logout", auth, ctrl.auth.logout);
-router.delete("/delete", auth, ctrl.auth.deleteUser);
 module.exports = router;
